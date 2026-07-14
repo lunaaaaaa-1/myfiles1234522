@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My VR File Transfer</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #222; color: #fff; }
+        button, input { margin: 20px; padding: 15px; font-size: 18px; border-radius: 8px; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        a { color: #00ffcc; font-size: 20px; display: block; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>VR File Transfer</h1>
+    <p>Upload a file here, then open this page in VR to download it.</p>
+    
+    <input type="file" id="fileInput"><br>
+    <button onclick="uploadFile()">Upload File</button>
+    
+    <div id="status"></div>
+    <div id="linkContainer"></div>
+
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const status = document.getElementById('status');
+            const linkContainer = document.getElementById('linkContainer');
+            
+            if (!fileInput.files[0]) {
+                alert('Please select a file first!');
+                return;
+            }
+
+            status.innerText = "Uploading... please wait.";
+            linkContainer.innerHTML = "";
+
+            const formData = new FormData();
+            formData.append('fileToUpload', fileInput.files[0]);
+            formData.append('reqtype', 'fileupload');
+
+            try {
+                // Using Catbox API for free, direct file hosting
+                const response = await fetch('https://catbox.moe', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const fileUrl = await response.text();
+                    status.innerText = "Upload successful!";
+                    linkContainer.innerHTML = `<a href="${fileUrl}" target="_blank" download>👉 Click here to Download File 👈</a><p>URL: ${fileUrl}</p>`;
+                } else {
+                    status.innerText = "Upload failed. Try a smaller file.";
+                }
+            } catch (error) {
+                status.innerText = "Error uploading file.";
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
